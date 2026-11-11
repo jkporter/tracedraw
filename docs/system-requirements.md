@@ -10,7 +10,7 @@ memory, processor and disk lines are measured or estimated, and say so.
 
 |                 | Minimum                                             | Recommended                                     |
 |-----------------|-----------------------------------------------------|-------------------------------------------------|
-| Windows         | Windows 10 version 1809, x64 or 32-bit x86; Windows 11 on arm64 | Windows 10 22H2 or Windows 11, x64 or arm64 |
+| Windows         | Windows 10 version 1809, x64, arm64 or 32-bit x86   | Windows 10 22H2 or Windows 11, x64 or arm64     |
 | macOS           | macOS 11 Big Sur, Apple silicon or Intel            | A current macOS release                         |
 | Linux           | x86_64 or arm64 with glibc 2.35 (Ubuntu 22.04, Debian 12, Fedora 36 or later) | A current distribution, X11 or Wayland |
 | Browser         | WebGL 2                                             | A current Chrome, Edge, Firefox or Safari       |
@@ -27,14 +27,19 @@ memory, processor and disk lines are measured or estimated, and say so.
   program, so a fresh Windows needs nothing more. 32-bit Windows 10 has
   its own installer and portable zip (`windows-x86`, built for
   `i686-pc-windows-msvc`, #1975). On 64-bit Windows its installer
-  recommends the x64 setup and installs only when asked to; the Store
-  has no 32-bit package. A
+  recommends the x64 setup (on Windows on ARM the arm64 setup) and
+  installs only when asked to; the Store has no 32-bit package. A
   32-bit program can use at most 2 GB of memory, so very large drawings
   and exports are better done on 64-bit Windows.
-  **Windows on ARM** (Windows 11 on arm64 PCs) has its own installer and
-  portable zip (`windows-arm64`, built for `aarch64-pc-windows-msvc`),
-  which run natively; its installer refuses other processors. The x64
-  files and the Store package run there too, emulated. The two
+  **Windows on ARM** has its own installer and portable zip
+  (`windows-arm64`, built for `aarch64-pc-windows-msvc`), which run
+  natively; its installer refuses other processors. They need the same
+  Windows 10 version 1809 as the x64 build; they are built for Windows
+  10 on ARM as well as Windows 11, but have been tried on neither yet.
+  Windows 11 on ARM also runs the x64 installer, portable zip and Store
+  package, emulated. Windows 10 on ARM runs no x64 programs (the x64
+  installer refuses it and the Store has no package for it), only the
+  arm64 files or, emulated, the 32-bit ones. The arm64 and x64
   installers share their install folder, so either replaces the other.
 - **macOS:** 11 Big Sur or later (`LSMinimumSystemVersion` in
   `packaging/macos/Info.plist`), with a separate download for Apple

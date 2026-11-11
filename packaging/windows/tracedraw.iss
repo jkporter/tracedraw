@@ -32,9 +32,10 @@ SolidCompression=yes
 WizardStyle=modern
 #if Arch == "x86"
 ; The 32-bit build installs on any Windows that runs 32-bit programs. On
-; 64-bit Windows it first recommends the x86_64 setup (InitializeSetup
-; below) and goes on when asked to: refusing showed only Windows's
-; message that the program does not support this version of Windows.
+; 64-bit Windows it first recommends the x86_64 setup, on Windows on ARM
+; the arm64 one (InitializeSetup below), and goes on when asked to:
+; refusing showed only Windows's message that the program does not
+; support this version of Windows.
 ArchitecturesAllowed=x86compatible
 #elif Arch == "arm64"
 ; Windows on ARM only. The x86_64 setup still installs there too (Windows
@@ -80,6 +81,9 @@ Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 ; The 32-bit setup run on 64-bit Windows (InitializeSetup).
 Use64Setup=This is the 32-bit TraceDraw for 32-bit Windows. Your Windows is 64-bit: the x86_64 setup (tracedraw-...-windows-x86_64-setup.exe) runs faster and can use all the memory. Install the 32-bit version anyway?
 brazilianportuguese.Use64Setup=Este é o TraceDraw de 32 bits, para Windows de 32 bits. Seu Windows é de 64 bits: o instalador x86_64 (tracedraw-...-windows-x86_64-setup.exe) é mais rápido e pode usar toda a memória. Instalar a versão de 32 bits mesmo assim?
+; The 32-bit setup run on Windows on ARM (InitializeSetup).
+UseArm64Setup=This is the 32-bit TraceDraw for 32-bit Windows. Your Windows runs on an ARM64 processor: the arm64 setup (tracedraw-...-windows-arm64-setup.exe) runs natively, faster, and can use all the memory. Install the 32-bit version anyway?
+brazilianportuguese.UseArm64Setup=Este é o TraceDraw de 32 bits, para Windows de 32 bits. Seu Windows roda em um processador ARM64: o instalador arm64 (tracedraw-...-windows-arm64-setup.exe) roda nativamente, é mais rápido e pode usar toda a memória. Instalar a versão de 32 bits mesmo assim?
 english.AddToPath=Add tracedraw-cli to PATH
 english.CommandLine=Command line:
 brazilianportuguese.AddToPath=Adicionar tracedraw-cli ao PATH
@@ -335,12 +339,15 @@ begin
 end;
 
 #if Arch == "x86"
-// The 32-bit setup on 64-bit Windows: recommend the x86_64 setup, go on
-// when the user says so.
+// The 32-bit setup on 64-bit Windows: recommend the x86_64 setup, or on
+// Windows on ARM (which IsWin64 counts as 64-bit too) the arm64 one; go
+// on when the user says so.
 function InitializeSetup(): Boolean;
 begin
   Result := True;
-  if IsWin64 then
+  if IsArm64 then
+    Result := MsgBox(CustomMessage('UseArm64Setup'), mbConfirmation, MB_YESNO) = IDYES
+  else if IsWin64 then
     Result := MsgBox(CustomMessage('Use64Setup'), mbConfirmation, MB_YESNO) = IDYES;
 end;
 #endif

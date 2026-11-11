@@ -6,7 +6,7 @@ full, row-by-row status.
 
 ## Unreleased
 
-- Windows on ARM: the releases carry a native arm64 build, `tracedraw-<version>-windows-arm64-setup.exe` and `-windows-arm64-portable.zip`, for Windows 11 on arm64 PCs. It runs natively, without the x64 emulation, Explorer thumbnails of `.tdraw` drawings included, and a copy installed from it updates itself with the arm64 files.
+- Windows on ARM: the releases carry a native arm64 build, `tracedraw-<version>-windows-arm64-setup.exe` and `-windows-arm64-portable.zip`, for Windows on ARM PCs. It runs natively, without the x64 emulation, Explorer thumbnails of `.tdraw` drawings included, and a copy installed from it updates itself with the arm64 files. Windows 10 on ARM, which runs no x64 programs, gets a 64-bit TraceDraw for the first time. The 32-bit setup, started on Windows on ARM, recommends the arm64 setup instead of the x64 one.
 
 ## 0.44.0 (2026-11-10)
 

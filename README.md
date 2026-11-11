@@ -364,7 +364,7 @@ editor needs X11 or Wayland, libxkbcommon and Mesa.
 ### What it runs on
 
 - **Windows 10 and 11** (x64; 32-bit Windows 10 with the `x86` files;
-  Windows 11 on ARM with the `arm64` files),
+  Windows on ARM with the `arm64` files),
   **macOS 11 or later** (Apple silicon and Intel), **Linux** (x86_64 and arm64, glibc 2.35 or later: Ubuntu 22.04,
   Debian 12, Fedora 36 or newer) and any current browser. Older Linux
   distributions can use the browser version.
@@ -448,8 +448,8 @@ For the newest fixes, take the installer below.
 | Platform | Files |
 |---|---|
 | Windows (x64) | [Microsoft Store](https://apps.microsoft.com/detail/9P50L12VHF33) (signed, may lag behind the latest release), `tracedraw-<version>-windows-x86_64-setup.exe` (installer), `tracedraw-<version>-windows-x86_64-portable.zip` (keeps its settings in the `tracedraw-settings` folder beside the program; not signed yet: if SmartScreen warns, More info > Run anyway) |
-| Windows 10 (32-bit) | `tracedraw-<version>-windows-x86-setup.exe` (for 32-bit Windows; on 64-bit Windows it asks first and the x64 files are better), `tracedraw-<version>-windows-x86-portable.zip`. Not in the Microsoft Store. A 32-bit program can use at most 2 GB of memory, so very large drawings are better opened on 64-bit Windows |
-| Windows 11 on ARM (arm64) | `tracedraw-<version>-windows-arm64-setup.exe`, `tracedraw-<version>-windows-arm64-portable.zip`: run natively instead of emulated as the x64 files do. Not in the Microsoft Store yet (its x64 package runs emulated) |
+| Windows 10 (32-bit) | `tracedraw-<version>-windows-x86-setup.exe` (for 32-bit Windows; on 64-bit Windows it asks first and the x64 files are better, on Windows on ARM the arm64 files), `tracedraw-<version>-windows-x86-portable.zip`. Not in the Microsoft Store. A 32-bit program can use at most 2 GB of memory, so very large drawings are better opened on 64-bit Windows |
+| Windows on ARM (arm64) | `tracedraw-<version>-windows-arm64-setup.exe`, `tracedraw-<version>-windows-arm64-portable.zip`: run natively. Windows 11 on ARM also runs the x64 files and the Microsoft Store version (x64 only for now), emulated; Windows 10 on ARM cannot run x64 programs, so there it takes these files |
 | macOS (Apple silicon, Intel) | `tracedraw-<version>-macos-arm64.dmg`, `tracedraw-<version>-macos-x86_64.dmg` (unsigned for now: right-click, Open) |
 | Linux (x86_64, arm64) | `.deb` (`_amd64` or `_arm64`), `tracedraw-<version>-linux-amd64.AppImage` or `-linux-arm64.AppImage`, `tracedraw-<version>-linux-x86_64.tar.gz` or `-linux-arm64.tar.gz` |
 | Web | no download: [open it in the browser](https://tracedraw.github.io/tracedraw/), nothing to install |

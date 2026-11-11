@@ -2190,6 +2190,16 @@ mod tests {
         assert!(iss.contains("OutputBaseFilename=tracedraw-{#Version}-windows-{#Arch}-setup"));
         assert!(iss.contains("#elif Arch == \"arm64\"\n"));
         assert!(iss.contains("ArchitecturesAllowed=arm64\nArchitecturesInstallIn64BitMode=arm64\n"));
+        // The 32-bit setup started on Windows on ARM, which IsWin64 counts
+        // as 64-bit too, recommends the arm64 setup, not the x86_64 one.
+        let arm = iss.find("if IsArm64 then").expect("an ARM64 check");
+        let win64 = iss.find("if IsWin64 then").expect("a 64-bit check");
+        assert!(arm < win64, "ARM64 is told apart before 64-bit");
+        assert!(iss.contains("CustomMessage('UseArm64Setup')"));
+        assert!(
+            iss.contains("\nUseArm64Setup=")
+                && iss.contains("windows-arm64-setup.exe) runs natively")
+        );
         assert!(cargo.contains(
             "[target.aarch64-pc-windows-msvc]\nrustflags = [\"-C\", \"target-feature=+crt-static\"]"
         ));
