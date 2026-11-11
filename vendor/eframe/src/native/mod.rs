@@ -38,3 +38,8 @@ mod gl_painter;
 
 #[cfg(feature = "wgpu_no_default_features")]
 mod wgpu_integration;
+
+// TraceDraw: a window's wgpu surface is never larger than the device can
+// make (see vendor/README.md).
+#[cfg(feature = "wgpu_no_default_features")]
+mod surface_size;

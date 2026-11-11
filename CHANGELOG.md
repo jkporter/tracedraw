@@ -4,6 +4,10 @@ Versions follow the tags of this repository; every push to `main` also
 publishes a nightly build. [`docs/features.md`](docs/features.md) has the
 full, row-by-row status.
 
+## Unreleased
+
+- Windows: moving the window to a monitor with a larger scale no longer stops TraceDraw with "`Surface` width and height must be within the maximum supported texture size". The window could grow past 8192 pixels on a side, the most the graphics device was set up for whatever the card allowed. The device now gets the card's own maximum (16384 on most cards), and a window larger than even that is drawn at the largest size the card can make, stretched, instead of closing the program.
+
 ## 0.44.0 (2026-11-10)
 
 - Extrude: a body turned in space with a vanishing point (the small and large types) no longer throws faces far past the object when the vanishing point sits near it or on it. A point takes its share of the way to the vanishing point from its own depth in the body, no longer from where the turn puts it (#2207).

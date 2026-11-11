@@ -963,6 +963,11 @@ impl WgpuWinitRunning<'_> {
                         shared.resized_viewport = viewport_id;
                         shared.painter.on_window_resize_state_change(id, true);
                     }
+                    // TraceDraw: never a surface larger than the device
+                    // can make, which wgpu stops the program for (see
+                    // vendor/README.md).
+                    let (width, height) =
+                        super::surface_size::fit(width, height, shared.painter.max_texture_side());
                     shared.painter.on_window_resized(id, width, height);
                     repaint_asap = true;
                 }
@@ -1313,6 +1318,9 @@ fn handle_viewport_output(
                     NonZeroU32::new(new_inner_size.height),
                 )
             {
+                // TraceDraw: as for `WindowEvent::Resized` above.
+                let (width, height) =
+                    super::surface_size::fit(width, height, painter.max_texture_side());
                 painter.on_window_resized(viewport_id, width, height);
             }
         }

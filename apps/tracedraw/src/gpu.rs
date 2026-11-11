@@ -810,6 +810,40 @@ mod software_tests {
     }
 }
 
+/// The limits the graphics device is asked for on `backend`, for an
+/// adapter that offers `adapter`: egui-wgpu's own choice, except the
+/// largest texture side, which is the card's. egui-wgpu asks for 8192
+/// whatever the card allows, and wgpu then stops the program when the
+/// window grows past 8192 pixels: on Windows, a window moved to a
+/// monitor with a larger scale became 8912 pixels wide. Cards of the last
+/// decade allow 16384 under Direct3D 12, Vulkan and Metal.
+pub fn device_limits(
+    backend: eframe::wgpu::Backend,
+    adapter: &eframe::wgpu::Limits,
+) -> eframe::wgpu::Limits {
+    use eframe::wgpu::{Backend, Limits};
+    let base = if backend == Backend::Gl {
+        Limits::downlevel_webgl2_defaults()
+    } else {
+        Limits::default()
+    };
+    Limits {
+        max_texture_dimension_2d: adapter.max_texture_dimension_2d,
+        ..base
+    }
+}
+
+/// The device request of every wgpu start: egui-wgpu's, with
+/// [`device_limits`].
+pub fn device_descriptor(
+) -> Arc<dyn Fn(&eframe::wgpu::Adapter) -> eframe::wgpu::DeviceDescriptor<'static> + Send + Sync> {
+    Arc::new(|adapter| eframe::wgpu::DeviceDescriptor {
+        label: Some("egui wgpu device"),
+        required_limits: device_limits(adapter.get_info().backend, &adapter.limits()),
+        ..Default::default()
+    })
+}
+
 /// The renderer and the wgpu set-up of a start in `mode`; `wanted` names
 /// the graphics card chosen (empty: the fastest).
 pub fn options(
@@ -822,6 +856,7 @@ pub fn options(
     }
     let wanted = wanted.to_string();
     let mut setup = WgpuSetupCreateNew::without_display_handle();
+    setup.device_descriptor = device_descriptor();
     setup.native_adapter_selector = Some(Arc::new(move |list, surface| {
         let candidates: Vec<Candidate> = list
             .iter()
@@ -922,9 +957,61 @@ mod eframe_context_fallback;
 #[path = "../../../vendor/eframe/src/native/fixed_function_geometry.rs"]
 mod eframe_fixed_function_geometry;
 
+/// The patched eframe's surface size with its tests, run here for the
+/// same reason: a window larger than the device can draw gets the largest
+/// surface it can, never a size wgpu stops the program for.
+#[cfg(test)]
+#[path = "../../../vendor/eframe/src/native/surface_size.rs"]
+mod eframe_surface_size;
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The device is asked for the card's largest texture side, so the
+    /// window can grow as large as the card can draw (8912 pixels wide
+    /// stopped the program when egui-wgpu asked for 8192); the other
+    /// limits stay egui-wgpu's, the WebGL 2 ones on OpenGL.
+    #[test]
+    fn the_device_gets_the_cards_largest_texture() {
+        use eframe::wgpu::{Backend, Limits};
+        let card = Limits {
+            max_texture_dimension_2d: 16384,
+            ..Limits::default()
+        };
+        for backend in [Backend::Dx12, Backend::Vulkan, Backend::Metal] {
+            let asked = device_limits(backend, &card);
+            assert_eq!(asked.max_texture_dimension_2d, 16384, "{backend:?}");
+            assert_eq!(
+                Limits {
+                    max_texture_dimension_2d: Limits::default().max_texture_dimension_2d,
+                    ..asked
+                },
+                Limits::default(),
+                "{backend:?}: the other limits are egui-wgpu's"
+            );
+        }
+        let gl = device_limits(Backend::Gl, &card);
+        assert_eq!(gl.max_texture_dimension_2d, 16384);
+        assert_eq!(
+            gl.max_bind_groups,
+            Limits::downlevel_webgl2_defaults().max_bind_groups
+        );
+        // A card with a smaller maximum is never asked for more.
+        let small = Limits {
+            max_texture_dimension_2d: 4096,
+            ..Limits::default()
+        };
+        assert_eq!(
+            device_limits(Backend::Dx12, &small).max_texture_dimension_2d,
+            4096
+        );
+        // Both the desktop and the Android set-ups ask for these limits.
+        let src = include_str!("gpu.rs");
+        assert!(src.contains("    setup.device_descriptor = device_descriptor();\n"));
+        assert!(include_str!("android.rs")
+            .contains("setup.device_descriptor = crate::gpu::device_descriptor();"));
+    }
 
     /// The Android window is drawn with one graphics API, OpenGL ES, and
     /// the Android entry asks for that one only.

@@ -129,6 +129,19 @@ change marked `TraceDraw:` in a comment.
   (`splash::open_main_window`). TraceDraw's tests include and run it
   (`splash::eframe_monitor_place::tests`). When moving to a newer
   eframe, check whether it centres with the monitor's position.
+- Change: a window's wgpu surface is never configured larger than the
+  device's largest texture side (`native/surface_size.rs`, `fit`, used
+  where `wgpu_integration.rs` passes a new window size to egui-wgpu's
+  painter). wgpu stops the program for such a surface ("`Surface` width
+  and height must be within the maximum supported texture size"), and
+  on Windows a window moved to a monitor with a larger scale grew to
+  8912 pixels wide on a device of 8192. A side past the maximum is cut
+  to it and the window system stretches the picture over the window
+  until it is small enough again. TraceDraw asks the device for the
+  card's own maximum (`gpu::device_limits`), so this is the fallback
+  for a window larger than even that. TraceDraw's tests include and
+  run it (`gpu::eframe_surface_size::tests`). When moving to a newer
+  eframe, check whether egui-wgpu clamps the surface itself.
 - Drop the copy and the `[patch.crates-io]` entry when the workspace moves
   to egui/eframe 0.37 or later: what holds that back is the egui 0.37
   API migration across the app. The fixed-function painter has no

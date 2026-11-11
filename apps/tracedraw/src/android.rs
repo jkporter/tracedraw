@@ -151,6 +151,7 @@ fn wgpu_options() -> eframe::egui_wgpu::WgpuConfiguration {
     use eframe::egui_wgpu::{SurfaceConfig, WgpuConfiguration, WgpuSetup, WgpuSetupCreateNew};
     let mut setup = WgpuSetupCreateNew::without_display_handle();
     setup.instance_descriptor.backends = crate::gpu::ANDROID_BACKENDS;
+    setup.device_descriptor = crate::gpu::device_descriptor();
     WgpuConfiguration {
         surface: SurfaceConfig::LOW_LATENCY,
         wgpu_setup: WgpuSetup::CreateNew(setup),
