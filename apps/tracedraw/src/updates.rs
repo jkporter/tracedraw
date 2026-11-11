@@ -2123,6 +2123,88 @@ mod tests {
         );
     }
 
+    /// Windows on ARM has a setup and a portable zip of its own,
+    /// `windows-arm64`, which the x86_64 and 32-bit copies never take, nor
+    /// it theirs.
+    #[test]
+    fn windows_on_arm_gets_its_own_files() {
+        use Kind::*;
+        let json = r#"{
+            "tag_name": "v0.5.0",
+            "html_url": "https://github.com/tracedraw/tracedraw/releases/tag/v0.5.0",
+            "prerelease": false,
+            "draft": false,
+            "assets": [
+                {"name": "tracedraw-0.5.0-windows-arm64-portable.zip", "browser_download_url": "https://x/tracedraw-0.5.0-windows-arm64-portable.zip"},
+                {"name": "tracedraw-0.5.0-windows-arm64-setup.exe", "browser_download_url": "https://x/tracedraw-0.5.0-windows-arm64-setup.exe"},
+                {"name": "tracedraw-0.5.0-windows-x86-portable.zip", "browser_download_url": "https://x/tracedraw-0.5.0-windows-x86-portable.zip"},
+                {"name": "tracedraw-0.5.0-windows-x86-setup.exe", "browser_download_url": "https://x/tracedraw-0.5.0-windows-x86-setup.exe"},
+                {"name": "tracedraw-0.5.0-windows-x86_64-portable.zip", "browser_download_url": "https://x/tracedraw-0.5.0-windows-x86_64-portable.zip"},
+                {"name": "tracedraw-0.5.0-windows-x86_64-setup.exe", "browser_download_url": "https://x/tracedraw-0.5.0-windows-x86_64-setup.exe"}
+            ]
+        }"#;
+        let cases = [
+            ("aarch64", Setup, "tracedraw-0.5.0-windows-arm64-setup.exe"),
+            (
+                "aarch64",
+                Portable,
+                "tracedraw-0.5.0-windows-arm64-portable.zip",
+            ),
+            ("x86_64", Setup, "tracedraw-0.5.0-windows-x86_64-setup.exe"),
+            (
+                "x86_64",
+                Portable,
+                "tracedraw-0.5.0-windows-x86_64-portable.zip",
+            ),
+            ("x86", Setup, "tracedraw-0.5.0-windows-x86-setup.exe"),
+            ("x86", Portable, "tracedraw-0.5.0-windows-x86-portable.zip"),
+        ];
+        for (arch, kind, want) in cases {
+            assert_eq!(
+                pick_in(json, "windows", arch, kind).as_deref(),
+                Some(want),
+                "{arch} {kind:?}"
+            );
+        }
+        // A release without the arm64 files offers the arm64 copy none,
+        // never the x86_64 ones.
+        assert_eq!(pick("windows", "aarch64", Setup), None);
+        assert_eq!(pick("windows", "aarch64", Portable), None);
+    }
+
+    /// The release builds the Windows on ARM programs, with the C runtime
+    /// inside as the x86_64 ones, and names their setup and zip as the
+    /// updater of an arm64 copy looks for them; the setup installs on
+    /// arm64 Windows only, in 64-bit mode, and SignPath signs it with the
+    /// other setups.
+    #[test]
+    fn the_release_builds_the_windows_arm64_files() {
+        let ci = include_str!("../../../.github/workflows/build.yml");
+        let iss = include_str!("../../../packaging/windows/tracedraw.iss");
+        let cargo = include_str!("../../../.cargo/config.toml");
+        let signpath = include_str!("../../../packaging/windows/signpath/installer.xml");
+        assert!(ci.contains("target: aarch64-pc-windows-msvc\n            name: windows-arm64\n"));
+        assert!(ci.contains(r#"elseif ("${{ matrix.target }}" -like "aarch64-*") { "arm64" }"#));
+        assert!(ci.contains("/DArch=$arch"));
+        assert!(ci.contains("-windows-$arch-portable.zip"));
+        assert!(iss.contains("OutputBaseFilename=tracedraw-{#Version}-windows-{#Arch}-setup"));
+        assert!(iss.contains("#elif Arch == \"arm64\"\n"));
+        assert!(iss.contains("ArchitecturesAllowed=arm64\nArchitecturesInstallIn64BitMode=arm64\n"));
+        assert!(cargo.contains(
+            "[target.aarch64-pc-windows-msvc]\nrustflags = [\"-C\", \"target-feature=+crt-static\"]"
+        ));
+        assert!(signpath.contains("tracedraw-*-windows-*-setup.exe"));
+        // What those make for a version is what the updater asks for.
+        assert_eq!(
+            asset_names("0.5.0", "windows", "aarch64", Kind::Setup),
+            vec!["tracedraw-0.5.0-windows-arm64-setup.exe".to_string()]
+        );
+        assert_eq!(
+            asset_names("0.5.0", "windows", "aarch64", Kind::Portable),
+            vec!["tracedraw-0.5.0-windows-arm64-portable.zip".to_string()]
+        );
+    }
+
     /// #1975: on 32-bit Windows a function a program imports by
     /// `raw-dylib` is looked up by its stdcall decorated name
     /// (`_GetUserDefaultUILanguage@0`) unless told otherwise, which the
@@ -2194,7 +2276,8 @@ mod tests {
     #[test]
     fn no_file_of_another_system_is_offered() {
         use Kind::*;
-        // No builds for these processors and systems.
+        // No builds for these processors and systems (the sample release
+        // has no Windows on ARM files, as releases before them had none).
         assert_eq!(pick("windows", "aarch64", Setup), None);
         assert_eq!(pick("windows", "aarch64", Portable), None);
         assert_eq!(pick("linux", "riscv64", AppImage), None);

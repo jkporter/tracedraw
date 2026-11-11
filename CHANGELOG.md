@@ -4,6 +4,10 @@ Versions follow the tags of this repository; every push to `main` also
 publishes a nightly build. [`docs/features.md`](docs/features.md) has the
 full, row-by-row status.
 
+## Unreleased
+
+- Windows on ARM: the releases carry a native arm64 build, `tracedraw-<version>-windows-arm64-setup.exe` and `-windows-arm64-portable.zip`, for Windows 11 on arm64 PCs. It runs natively, without the x64 emulation, Explorer thumbnails of `.tdraw` drawings included, and a copy installed from it updates itself with the arm64 files.
+
 ## 0.44.0 (2026-11-10)
 
 - Extrude: a body turned in space with a vanishing point (the small and large types) no longer throws faces far past the object when the vanishing point sits near it or on it. A point takes its share of the way to the vanishing point from its own depth in the body, no longer from where the turn puts it (#2207).

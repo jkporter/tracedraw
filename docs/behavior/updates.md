@@ -27,9 +27,9 @@ Updates opens the releases page).
     program): `tracedraw-<v>-windows-<arch>-portable.zip`;
   - macOS: `tracedraw-<v>-macos-<arch>.dmg`.
   When the release has no such file (an rpm or other system package
-  under `/usr`, a Flatpak or Snap, a processor without a build such as
-  Windows on arm64) no file is downloaded and Download opens the release
-  page instead; a file for another processor or package is never offered
+  under `/usr`, a Flatpak or Snap, a processor without a build, a
+  release from before a processor had one) no file is downloaded and
+  Download opens the release page instead; a file for another processor or package is never offered
   (#1038: the x86_64 AppImage took the arm64 one, listed first).
 - The update card (`ui/update_card.rs`): once a newer release is known
   (found by the check at start or by Help > Updates) and was not

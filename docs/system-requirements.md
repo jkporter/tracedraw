@@ -10,7 +10,7 @@ memory, processor and disk lines are measured or estimated, and say so.
 
 |                 | Minimum                                             | Recommended                                     |
 |-----------------|-----------------------------------------------------|-------------------------------------------------|
-| Windows         | Windows 10 version 1809, x64 or 32-bit x86          | Windows 10 22H2 or Windows 11, x64              |
+| Windows         | Windows 10 version 1809, x64 or 32-bit x86; Windows 11 on arm64 | Windows 10 22H2 or Windows 11, x64 or arm64 |
 | macOS           | macOS 11 Big Sur, Apple silicon or Intel            | A current macOS release                         |
 | Linux           | x86_64 or arm64 with glibc 2.35 (Ubuntu 22.04, Debian 12, Fedora 36 or later) | A current distribution, X11 or Wayland |
 | Browser         | WebGL 2                                             | A current Chrome, Edge, Firefox or Safari       |
@@ -30,7 +30,12 @@ memory, processor and disk lines are measured or estimated, and say so.
   recommends the x64 setup and installs only when asked to; the Store
   has no 32-bit package. A
   32-bit program can use at most 2 GB of memory, so very large drawings
-  and exports are better done on 64-bit Windows. There is no Windows on ARM build.
+  and exports are better done on 64-bit Windows.
+  **Windows on ARM** (Windows 11 on arm64 PCs) has its own installer and
+  portable zip (`windows-arm64`, built for `aarch64-pc-windows-msvc`),
+  which run natively; its installer refuses other processors. The x64
+  files and the Store package run there too, emulated. The two
+  installers share their install folder, so either replaces the other.
 - **macOS:** 11 Big Sur or later (`LSMinimumSystemVersion` in
   `packaging/macos/Info.plist`), with a separate download for Apple
   silicon (arm64) and for Intel (x86_64).

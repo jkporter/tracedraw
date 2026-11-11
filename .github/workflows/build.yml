@@ -78,6 +78,14 @@ jobs:
             target: i686-pc-windows-msvc
             name: windows-x86
             experimental: true
+          # Windows on ARM (Windows 11 on arm64 PCs): built on the x64
+          # runner with the ARM64 tools of its Visual Studio, so it is
+          # packed by the same Inno Setup. New, so `experimental` as the
+          # 32-bit build was.
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            name: windows-arm64
+            experimental: true
           - os: macos-latest
             target: aarch64-apple-darwin
             name: macos-arm64
@@ -226,8 +234,9 @@ jobs:
           New-Item -ItemType Directory -Force dist | Out-Null
           $src = "target\${{ matrix.target }}\release"
           # The files' processor name, as the in-app updater looks for it
-          # (apps/tracedraw/src/updates.rs, asset_names): x86 for 32-bit.
-          $arch = if ("${{ matrix.target }}" -like "i686-*") { "x86" } else { "x86_64" }
+          # (apps/tracedraw/src/updates.rs, asset_names): x86 for 32-bit,
+          # arm64 for Windows on ARM.
+          $arch = if ("${{ matrix.target }}" -like "i686-*") { "x86" } elseif ("${{ matrix.target }}" -like "aarch64-*") { "arm64" } else { "x86_64" }
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DVersion=${{ steps.ver.outputs.version }} /DArch=$arch /DSrcDir="$PWD\$src" packaging\windows\tracedraw.iss
           # The portable zip carries the settings folder, so it keeps its
           # preferences beside the program and writes nothing to %APPDATA%.

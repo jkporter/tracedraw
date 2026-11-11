@@ -46,8 +46,9 @@ time of writing).
 
 - `tracedraw.exe` and `tracedraw-cli.exe`, before they are packed (so the
   installer, the portable zip and the MSIX all carry signed programs).
-- The installers, `tracedraw-<version>-windows-x86_64-setup.exe` and
-  the 32-bit `tracedraw-<version>-windows-x86-setup.exe` (#1975). Each
+- The installers, `tracedraw-<version>-windows-x86_64-setup.exe`, the
+  32-bit `tracedraw-<version>-windows-x86-setup.exe` (#1975) and the
+  Windows on ARM `tracedraw-<version>-windows-arm64-setup.exe`. Each
   Windows build uploads its own SignPath artifacts
   (`unsigned-programs-<build>`, `unsigned-installer-<build>`); the
   "installer" artifact configuration in SignPath must match

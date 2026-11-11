@@ -1,7 +1,8 @@
 ﻿; Inno Setup script for TraceDraw. Built by CI on windows-latest.
 ; Variables: /DVersion=x.y.z /DSrcDir=<dir with tracedraw.exe and tracedraw-cli.exe>
-; /DArch=x86 for the 32-bit Windows build (i686-pc-windows-msvc, #1975);
-; x86_64 when not given.
+; /DArch=x86 for the 32-bit Windows build (i686-pc-windows-msvc, #1975),
+; /DArch=arm64 for Windows on ARM (aarch64-pc-windows-msvc); x86_64 when
+; not given.
 
 #ifndef Version
   #define Version "0.0.0"
@@ -35,6 +36,13 @@ WizardStyle=modern
 ; below) and goes on when asked to: refusing showed only Windows's
 ; message that the program does not support this version of Windows.
 ArchitecturesAllowed=x86compatible
+#elif Arch == "arm64"
+; Windows on ARM only. The x86_64 setup still installs there too (Windows
+; 11 runs x64 programs on arm64): both share this AppId and folder, so
+; either one replaces the other. The arm64 programs, and the thumbnailer
+; DLL the arm64 Explorer loads, run natively.
+ArchitecturesAllowed=arm64
+ArchitecturesInstallIn64BitMode=arm64
 #else
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
